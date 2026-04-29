@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VetCare API - Clínica Veterinária</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🐾 VetCare API</h1>
+        <p>Sistema de gestão de clínica veterinária</p>
+        
+        <div class="cards">
+            <div class="card">
+                <h2>🐕 Tutores</h2>
+                <button onclick="carregarTutores()">Listar Tutores</button>
+                <div id="tutores-lista"></div>
+            </div>
+            
+            <div class="card">
+                <h2>🐶 Pets</h2>
+                <button onclick="carregarPets()">Listar Pets</button>
+                <div id="pets-lista"></div>
+            </div>
+            
+            <div class="card">
+                <h2>👨‍⚕️ Veterinários</h2>
+                <button onclick="carregarVeterinarios()">Listar Veterinários</button>
+                <div id="veterinarios-lista"></div>
+            </div>
+            
+            <div class="card">
+                <h2>📅 Consultas</h2>
+                <button onclick="carregarConsultas()">Listar Consultas</button>
+                <div id="consultas-lista"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/script.js"></script>
+</body>
+</html>
