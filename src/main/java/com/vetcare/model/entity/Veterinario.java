@@ -1,6 +1,7 @@
 package com.vetcare.model.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "veterinarios")
@@ -24,6 +25,9 @@ public class Veterinario {
     
     @Column(unique = true, length = 100)
     private String email;
+
+    @Column(name = "data_cadastro")
+    private LocalDateTime dataCadastro;
 
     // Construtor padrão
     public Veterinario() {
@@ -87,5 +91,13 @@ public class Veterinario {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public LocalDateTime getDataCadastro() {
+    return dataCadastro;
+    }
+
+    public void setDataCadastro(LocalDateTime dataCadastro) {
+    this.dataCadastro = dataCadastro;
     }
 }
