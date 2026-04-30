@@ -3,41 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VetCare API - Clínica Veterinária</title>
+    <title>VetCare - Sistema de Gestão Veterinária</title>
+    
+    <!-- BoxIcons CDN -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🐾 VetCare API</h1>
-        <p>Sistema de gestão de clínica veterinária</p>
-        
-        <div class="cards">
-            <div class="card">
-                <h2>🐕 Tutores</h2>
-                <button onclick="carregarTutores()">Listar Tutores</button>
-                <div id="tutores-lista"></div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class='bx bxs-dog'></i>
+                <span class="logo-text">VetCare</span>
             </div>
             
-            <div class="card">
-                <h2>🐶 Pets</h2>
-                <button onclick="carregarPets()">Listar Pets</button>
-                <div id="pets-lista"></div>
-            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-module="dashboard">
+                    <i class='bx bxs-dashboard'></i>
+                    <span>Dashboard</span>
+                </button>
+                <button class="nav-item" data-module="tutores">
+                    <i class='bx bxs-user'></i>
+                    <span>Tutores</span>
+                </button>
+                <button class="nav-item" data-module="pets">
+                    <i class='bx bxs-cat'></i>
+                    <span>Pets</span>
+                </button>
+                <button class="nav-item" data-module="veterinarios">
+                    <i class='bx bxs-briefcase'></i>
+                    <span>Veterinários</span>
+                </button>
+                <button class="nav-item" data-module="consultas">
+                    <i class='bx bxs-calendar-check'></i>
+                    <span>Consultas</span>
+                </button>
+                <button class="nav-item" data-module="agendas">
+                    <i class='bx bxs-calendar-week'></i>
+                    <span>Agendas</span>
+                </button>
+            </nav>
             
-            <div class="card">
-                <h2>👨‍⚕️ Veterinários</h2>
-                <button onclick="carregarVeterinarios()">Listar Veterinários</button>
-                <div id="veterinarios-lista"></div>
+            <div class="sidebar-footer">
+                <div class="api-status">
+                    <i class='bx bxs-circle'></i>
+                    <span>API Online</span>
+                </div>
             </div>
-            
-            <div class="card">
-                <h2>📅 Consultas</h2>
-                <button onclick="carregarConsultas()">Listar Consultas</button>
-                <div id="consultas-lista"></div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="page-title">
+                    <i class='bx bxs-dashboard'></i>
+                    <h1 id="page-title">Dashboard</h1>
+                </div>
+                <div class="user-info">
+                    <i class='bx bxs-user-circle'></i>
+                    <span>Bem-vindo, Administrador!</span>
+                </div>
+            </header>
+
+            <!-- Dashboard -->
+            <div id="dashboard" class="module active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class='bx bxs-group'></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-tutores">0</h3>
+                            <p>Tutores</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class='bx bxs-dog'></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-pets">0</h3>
+                            <p>Pets</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class='bx bxs-briefcase'></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-veterinarios">0</h3>
+                            <p>Veterinários</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class='bx bxs-calendar'></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="total-consultas">0</h3>
+                            <p>Consultas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-section">
+                    <div class="section-header">
+                        <i class='bx bxs-time'></i>
+                        <h2>Consultas Recentes</h2>
+                    </div>
+                    <div id="recent-consultas" class="table-container">
+                        <div class="loading"><i class='bx bx-loader-alt bx-spin'></i> Carregando...</div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Tutores -->
+            <div id="tutores" class="module">
+                <div class="module-header">
+                    <div class="header-title">
+                        <i class='bx bxs-user-detail'></i>
+                        <h2>Lista de Tutores</h2>
+                    </div>
+                    <button class="btn-primary" onclick="showModal('tutor')">
+                        <i class='bx bx-plus'></i> Novo Tutor
+                    </button>
+                </div>
+                <div id="tutores-list" class="table-container">
+                    <div class="loading"><i class='bx bx-loader-alt bx-spin'></i> Carregando...</div>
+                </div>
+            </div>
+
+            <!-- Pets -->
+            <div id="pets" class="module">
+                <div class="module-header">
+                    <div class="header-title">
+                        <i class='bx bxs-dog'></i>
+                        <h2>Lista de Pets</h2>
+                    </div>
+                    <button class="btn-primary" onclick="showModal('pet')">
+                        <i class='bx bx-plus'></i> Novo Pet
+                    </button>
+                </div>
+                <div id="pets-list" class="table-container">
+                    <div class="loading"><i class='bx bx-loader-alt bx-spin'></i> Carregando...</div>
+                </div>
+            </div>
+
+            <!-- Veterinários -->
+            <div id="veterinarios" class="module">
+                <div class="module-header">
+                    <div class="header-title">
+                        <i class='bx bxs-stethoscope'></i>
+                        <h2>Lista de Veterinários</h2>
+                    </div>
+                    <button class="btn-primary" onclick="showModal('veterinario')">
+                        <i class='bx bx-plus'></i> Novo Veterinário
+                    </button>
+                </div>
+                <div id="veterinarios-list" class="table-container">
+                    <div class="loading"><i class='bx bx-loader-alt bx-spin'></i> Carregando...</div>
+                </div>
+            </div>
+
+            <!-- Consultas -->
+            <div id="consultas" class="module">
+                <div class="module-header">
+                    <div class="header-title">
+                        <i class='bx bxs-calendar-check'></i>
+                        <h2>Lista de Consultas</h2>
+                    </div>
+                    <button class="btn-primary" onclick="showModal('consulta')">
+                        <i class='bx bx-plus'></i> Nova Consulta
+                    </button>
+                </div>
+                <div id="consultas-list" class="table-container">
+                    <div class="loading"><i class='bx bx-loader-alt bx-spin'></i> Carregando...</div>
+                </div>
+            </div>
+
+            <!-- Agendas -->
+            <div id="agendas" class="module">
+                <div class="module-header">
+                    <div class="header-title">
+                        <i class='bx bxs-calendar-week'></i>
+                        <h2>Lista de Agendas</h2>
+                    </div>
+                    <button class="btn-primary" onclick="showModal('agenda')">
+                        <i class='bx bx-plus'></i> Novo Horário
+                    </button>
+                </div>
+                <div id="agendas-list" class="table-container">
+                    <div class="loading"><i class='bx bx-loader-alt bx-spin'></i> Carregando...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para Formulários -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class='bx bx-plus-circle'></i>
+                    <h3 id="modal-title">Título</h3>
+                </div>
+                <i class='bx bx-x close' onclick="closeModal()"></i>
+            </div>
+            <form id="modal-form">
+                <div id="modal-fields"></div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">
+                        <i class='bx bx-x'></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class='bx bx-save'></i> Salvar
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
-    
+
     <script src="js/script.js"></script>
 </body>
 </html>
