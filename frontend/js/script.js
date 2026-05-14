@@ -335,7 +335,18 @@ document.getElementById('modal-form').addEventListener('submit', async (e) => {
     
     const entity = currentEntity;
     const isEdit = editingId !== null;
-    const url = isEdit ? `${API_BASE}/${entity}s/${editingId}` : `${API_BASE}/${entity}s`;
+    
+    // Mapa de plurais corretos (especialmente para 'tutor' -> 'tutores')
+    const pluralMap = {
+        'tutor': 'tutores',
+        'pet': 'pets',
+        'veterinario': 'veterinarios',
+        'consulta': 'consultas',
+        'agenda': 'agendas'
+    };
+    
+    const urlEntity = pluralMap[entity];
+    const url = isEdit ? `${API_BASE}/${urlEntity}/${editingId}` : `${API_BASE}/${urlEntity}`;
     const method = isEdit ? 'PUT' : 'POST';
     
     let body = {};
