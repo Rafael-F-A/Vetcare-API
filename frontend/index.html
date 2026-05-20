@@ -230,5 +230,27 @@
     </div>
 
     <script src="js/script.js"></script>
+
+    <!-- Modal de Detalhes -->
+    <div id="detail-modal" class="modal">
+        <div class="modal-content detail-modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class='bx bx-info-circle'></i>
+                    <h3 id="detail-modal-title">Detalhes</h3>
+                </div>
+                <i class='bx bx-x close' onclick="closeDetailModal()"></i>
+            </div>
+            <div id="detail-modal-body" class="detail-modal-body">
+                <!-- Conteúdo dinâmico será inserido aqui -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn-secondary" onclick="closeDetailModal()">
+                    <i class='bx bx-x'></i> Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

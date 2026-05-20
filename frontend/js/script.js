@@ -75,6 +75,9 @@ async function loadDashboard() {
         document.getElementById('total-veterinarios').textContent = veterinarios.length;
         document.getElementById('total-consultas').textContent = consultas.length;
         
+        // Adicionar eventos de clique nos cards
+        setupCardClickEvents(tutores, pets, veterinarios, consultas);
+        
         const recent = consultas.slice(-5).reverse();
         const recentHtml = `
             <table>
@@ -102,6 +105,24 @@ async function loadDashboard() {
     }
 }
 
+function setupCardClickEvents(tutores, pets, veterinarios, consultas) {
+    const statCards = document.querySelectorAll('.stat-card');
+    if (statCards.length >= 4) {
+        // Tutores card
+        statCards[0].style.cursor = 'pointer';
+        statCards[0].onclick = () => { if(tutores.length > 0) showDetailModal('tutor', tutores[0].id); else alert('Nenhum tutor cadastrado'); };
+        // Pets card
+        statCards[1].style.cursor = 'pointer';
+        statCards[1].onclick = () => { if(pets.length > 0) showDetailModal('pet', pets[0].id); else alert('Nenhum pet cadastrado'); };
+        // Veterinários card
+        statCards[2].style.cursor = 'pointer';
+        statCards[2].onclick = () => { if(veterinarios.length > 0) showDetailModal('veterinario', veterinarios[0].id); else alert('Nenhum veterinário cadastrado'); };
+        // Consultas card
+        statCards[3].style.cursor = 'pointer';
+        statCards[3].onclick = () => { if(consultas.length > 0) showDetailModal('consulta', consultas[0].id); else alert('Nenhuma consulta cadastrada'); };
+    }
+}
+
 // Load Lists
 async function loadList(entity) {
     const container = document.getElementById(`${entity}-list`);
@@ -117,10 +138,35 @@ async function loadList(entity) {
         }
         
         container.innerHTML = renderTable(entity, data);
+        attachTableRowEvents(entity);
     } catch (error) {
         console.error('Error:', error);
         container.innerHTML = '<div class="empty"><i class="bx bx-error-circle"></i>Erro ao carregar dados</div>';
     }
+}
+
+function attachTableRowEvents(entity) {
+    const rows = document.querySelectorAll(`#${entity}-list tbody tr`);
+    rows.forEach(row => {
+        row.style.cursor = 'pointer';
+        const firstCell = row.cells[0];
+        if (firstCell) {
+            const id = parseInt(firstCell.textContent);
+            const singularMap = {
+                'tutores': 'tutor',
+                'pets': 'pet',
+                'veterinarios': 'veterinario',
+                'consultas': 'consulta',
+                'agendas': 'agenda'
+            };
+            const singular = singularMap[entity];
+            row.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON') {
+                    showDetailModal(singular, id);
+                }
+            });
+        }
+    });
 }
 
 function renderTable(entity, data) {
@@ -158,28 +204,48 @@ function renderRow(entity, item) {
     switch(entity) {
         case 'tutores':
             return `<tr>
-                <td>${item.id}</td><td>${item.nome}</td><td>${item.cpf}</td><td>${item.telefone || '-'}</td><td>${item.email || '-'}</td>
-                <td><button class="btn-edit" onclick="editItem('tutores', ${item.id})"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('tutores', ${item.id})"><i class='bx bx-trash'></i>Excluir</button></td>
+                <td>${item.id}</td>
+                <td>${item.nome}</td>
+                <td>${item.cpf}</td>
+                <td>${item.telefone || '-'}</td>
+                <td>${item.email || '-'}</td>
+                <td><button class="btn-edit" onclick="editItem('tutores', ${item.id}); event.stopPropagation();"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('tutores', ${item.id}); event.stopPropagation();"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         case 'pets':
             return `<tr>
-                <td>${item.id}</td><td>${item.nome}</td><td>${item.especie}</td><td>${item.raca || '-'}</td><td>${item.tutor?.nome || '-'}</td>
-                <td><button class="btn-edit" onclick="editItem('pets', ${item.id})"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('pets', ${item.id})"><i class='bx bx-trash'></i>Excluir</button></td>
+                <td>${item.id}</td>
+                <td>${item.nome}</td>
+                <td>${item.especie}</td>
+                <td>${item.raca || '-'}</td>
+                <td>${item.tutor?.nome || '-'}</td>
+                <td><button class="btn-edit" onclick="editItem('pets', ${item.id}); event.stopPropagation();"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('pets', ${item.id}); event.stopPropagation();"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         case 'veterinarios':
             return `<tr>
-                <td>${item.id}</td><td>${item.nome}</td><td>${item.crmv}</td><td>${item.especialidade || '-'}</td><td>${item.telefone || '-'}</td>
-                <td><button class="btn-edit" onclick="editItem('veterinarios', ${item.id})"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('veterinarios', ${item.id})"><i class='bx bx-trash'></i>Excluir</button></td>
+                <td>${item.id}</td>
+                <td>${item.nome}</td>
+                <td>${item.crmv}</td>
+                <td>${item.especialidade || '-'}</td>
+                <td>${item.telefone || '-'}</td>
+                <td><button class="btn-edit" onclick="editItem('veterinarios', ${item.id}); event.stopPropagation();"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('veterinarios', ${item.id}); event.stopPropagation();"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         case 'consultas':
             return `<tr>
-                <td>${item.id}</td><td>${new Date(item.dataHora).toLocaleString()}</td><td>${item.pet?.nome || '-'}</td><td>${item.veterinario?.nome || '-'}</td><td>${item.status}</td>
-                <td><button class="btn-edit" onclick="editItem('consultas', ${item.id})"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('consultas', ${item.id})"><i class='bx bx-trash'></i>Excluir</button></td>
+                <td>${item.id}</td>
+                <td>${new Date(item.dataHora).toLocaleString()}</td>
+                <td>${item.pet?.nome || '-'}</td>
+                <td>${item.veterinario?.nome || '-'}</td>
+                <td>${item.status}</td>
+                <td><button class="btn-edit" onclick="editItem('consultas', ${item.id}); event.stopPropagation();"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('consultas', ${item.id}); event.stopPropagation();"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         case 'agendas':
             return `<tr>
-                <td>${item.id}</td><td>${new Date(item.dataHoraInicio).toLocaleString()}</td><td>${new Date(item.dataHoraFim).toLocaleString()}</td><td>${item.veterinario?.nome || '-'}</td><td>${item.disponivel ? 'Sim' : 'Não'}</td>
-                <td><button class="btn-edit" onclick="editItem('agendas', ${item.id})"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('agendas', ${item.id})"><i class='bx bx-trash'></i>Excluir</button></td>
+                <td>${item.id}</td>
+                <td>${new Date(item.dataHoraInicio).toLocaleString()}</td>
+                <td>${new Date(item.dataHoraFim).toLocaleString()}</td>
+                <td>${item.veterinario?.nome || '-'}</td>
+                <td>${item.disponivel ? 'Sim' : 'Não'}</td>
+                <td><button class="btn-edit" onclick="editItem('agendas', ${item.id}); event.stopPropagation();"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('agendas', ${item.id}); event.stopPropagation();"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         default:
             return '';
@@ -208,7 +274,15 @@ async function loadFormFields(entity, id) {
     let data = {};
     if (id) {
         try {
-            const response = await fetch(`${API_BASE}/${entity}s/${id}`);
+            const pluralMap = {
+                'tutor': 'tutores',
+                'pet': 'pets',
+                'veterinario': 'veterinarios',
+                'consulta': 'consultas',
+                'agenda': 'agendas'
+            };
+            const pluralEntity = pluralMap[entity];
+            const response = await fetch(`${API_BASE}/${pluralEntity}/${id}`);
             if (response.ok) data = await response.json();
         } catch (error) {
             console.error(`Erro ao carregar ${entity} para edição:`, error);
@@ -224,17 +298,14 @@ async function loadFormFields(entity, id) {
                 <div class="form-group"><label><i class='bx bx-envelope'></i>Email</label><input type="email" id="email" value="${data.email || ''}"></div>
                 <div class="form-group"><label><i class='bx bx-map'></i>Endereço</label><input type="text" id="endereco" value="${data.endereco || ''}"></div>
             `;
-            
         case 'pet':
             let tutores = [];
             try {
                 const response = await fetch(`${API_BASE}/tutores`);
                 if (response.ok) tutores = await response.json();
-                else console.error('Erro ao carregar tutores:', response.status);
             } catch (error) {
-                console.error('Erro de conexão ao carregar tutores:', error);
+                console.error('Erro ao carregar tutores:', error);
             }
-            
             return `
                 <div class="form-group"><label><i class='bx bx-paw'></i>Nome*</label><input type="text" id="nome" value="${data.nome || ''}" required></div>
                 <div class="form-group"><label><i class='bx bx-category'></i>Espécie*</label>
@@ -251,7 +322,6 @@ async function loadFormFields(entity, id) {
                     </select>
                 </div>
             `;
-            
         case 'veterinario':
             return `
                 <div class="form-group"><label><i class='bx bx-user'></i>Nome*</label><input type="text" id="nome" value="${data.nome || ''}" required></div>
@@ -260,7 +330,6 @@ async function loadFormFields(entity, id) {
                 <div class="form-group"><label><i class='bx bx-phone'></i>Telefone</label><input type="text" id="telefone" value="${data.telefone || ''}"></div>
                 <div class="form-group"><label><i class='bx bx-envelope'></i>Email</label><input type="email" id="email" value="${data.email || ''}"></div>
             `;
-            
         case 'consulta':
             let pets = [], veterinarios = [];
             try {
@@ -270,11 +339,9 @@ async function loadFormFields(entity, id) {
                 ]);
                 if (petsRes.ok) pets = await petsRes.json();
                 if (vetsRes.ok) veterinarios = await vetsRes.json();
-                console.log('Pets carregados:', pets.length, 'Veterinários carregados:', veterinarios.length);
             } catch (error) {
                 console.error('Erro ao carregar dados para consulta:', error);
             }
-            
             return `
                 <div class="form-group"><label><i class='bx bx-calendar'></i>Data/Hora*</label><input type="datetime-local" id="dataHora" value="${data.dataHora?.slice(0,16) || ''}" required></div>
                 <div class="form-group"><label><i class='bx bxs-dog'></i>Pet*</label>
@@ -296,17 +363,14 @@ async function loadFormFields(entity, id) {
                 <div class="form-group"><label><i class='bx bx-stethoscope'></i>Diagnóstico</label><textarea id="diagnostico" rows="2">${data.diagnostico || ''}</textarea></div>
                 <div class="form-group"><label><i class='bx bx-capsule'></i>Prescrição</label><textarea id="prescricao" rows="2">${data.prescricao || ''}</textarea></div>
             `;
-            
         case 'agenda':
             let veterinariosAgenda = [];
             try {
                 const response = await fetch(`${API_BASE}/veterinarios`);
                 if (response.ok) veterinariosAgenda = await response.json();
-                console.log('Veterinários carregados para agenda:', veterinariosAgenda.length);
             } catch (error) {
                 console.error('Erro ao carregar veterinários para agenda:', error);
             }
-            
             return `
                 <div class="form-group"><label><i class='bx bx-calendar'></i>Início*</label><input type="datetime-local" id="dataHoraInicio" value="${data.dataHoraInicio?.slice(0,16) || ''}" required></div>
                 <div class="form-group"><label><i class='bx bx-calendar'></i>Fim*</label><input type="datetime-local" id="dataHoraFim" value="${data.dataHoraFim?.slice(0,16) || ''}" required></div>
@@ -323,7 +387,6 @@ async function loadFormFields(entity, id) {
                     </select>
                 </div>
             `;
-            
         default:
             return '<p class="empty">Formulário não disponível para esta entidade</p>';
     }
@@ -335,7 +398,21 @@ document.getElementById('modal-form').addEventListener('submit', async (e) => {
     
     const entity = currentEntity;
     const isEdit = editingId !== null;
+<<<<<<< Updated upstream
     const url = isEdit ? `${API_BASE}/${entity}s/${editingId}` : `${API_BASE}/${entity}s`;
+=======
+    
+    const pluralMap = {
+        'tutor': 'tutores',
+        'pet': 'pets',
+        'veterinario': 'veterinarios',
+        'consulta': 'consultas',
+        'agenda': 'agendas'
+    };
+    
+    const urlEntity = pluralMap[entity];
+    const url = isEdit ? `${API_BASE}/${urlEntity}/${editingId}` : `${API_BASE}/${urlEntity}`;
+>>>>>>> Stashed changes
     const method = isEdit ? 'PUT' : 'POST';
     
     let body = {};
@@ -413,7 +490,15 @@ document.getElementById('modal-form').addEventListener('submit', async (e) => {
 });
 
 function editItem(entity, id) {
-    showModal(entity.slice(0, -1), id);
+    const singularMap = {
+        'tutores': 'tutor',
+        'pets': 'pet',
+        'veterinarios': 'veterinario',
+        'consultas': 'consulta',
+        'agendas': 'agenda'
+    };
+    const singular = singularMap[entity] || entity.slice(0, -1);
+    showModal(singular, id);
 }
 
 async function deleteItem(entity, id) {
@@ -439,3 +524,125 @@ function closeModal() {
     editingId = null;
     currentEntity = null;
 }
+
+// Detail Modal Functions
+async function showDetailModal(entityType, entityId) {
+    const pluralMap = {
+        'tutor': 'tutores',
+        'pet': 'pets',
+        'veterinario': 'veterinarios',
+        'consulta': 'consultas',
+        'agenda': 'agendas'
+    };
+    
+    const pluralEntity = pluralMap[entityType] || entityType + 's';
+    const titleMap = {
+        'tutor': 'Detalhes do Tutor',
+        'pet': 'Detalhes do Pet',
+        'veterinario': 'Detalhes do Veterinário',
+        'consulta': 'Detalhes da Consulta',
+        'agenda': 'Detalhes da Agenda'
+    };
+    
+    document.getElementById('detail-modal-title').textContent = titleMap[entityType] || 'Detalhes';
+    document.getElementById('detail-modal-body').innerHTML = '<div class="loading"><i class="bx bx-loader-alt bx-spin"></i> Carregando...</div>';
+    document.getElementById('detail-modal').classList.add('active');
+    
+    try {
+        const response = await fetch(`${API_BASE}/${pluralEntity}/${entityId}`);
+        if (response.ok) {
+            const data = await response.json();
+            renderDetailModal(entityType, data);
+        } else {
+            document.getElementById('detail-modal-body').innerHTML = '<div class="empty"><i class="bx bx-error-circle"></i>Erro ao carregar dados</div>';
+        }
+    } catch (error) {
+        console.error('Erro ao carregar detalhes:', error);
+        document.getElementById('detail-modal-body').innerHTML = '<div class="empty"><i class="bx bx-error-circle"></i>Erro de conexão</div>';
+    }
+}
+
+function renderDetailModal(entityType, data) {
+    let html = '';
+    
+    switch(entityType) {
+        case 'tutor':
+            html = `
+                <div class="detail-card">
+                    <h4><i class='bx bx-user'></i> Informações Pessoais</h4>
+                    <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${data.id}</span></div>
+                    <div class="detail-row"><span class="detail-label">Nome:</span><span class="detail-value">${data.nome}</span></div>
+                    <div class="detail-row"><span class="detail-label">CPF:</span><span class="detail-value">${data.cpf}</span></div>
+                    <div class="detail-row"><span class="detail-label">Telefone:</span><span class="detail-value">${data.telefone || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Email:</span><span class="detail-value">${data.email || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Endereço:</span><span class="detail-value">${data.endereco || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Cadastro:</span><span class="detail-value">${new Date(data.dataCadastro).toLocaleDateString()}</span></div>
+                </div>
+            `;
+            break;
+        case 'pet':
+            html = `
+                <div class="detail-card">
+                    <h4><i class='bx bxs-dog'></i> Informações do Pet</h4>
+                    <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${data.id}</span></div>
+                    <div class="detail-row"><span class="detail-label">Nome:</span><span class="detail-value">${data.nome}</span></div>
+                    <div class="detail-row"><span class="detail-label">Espécie:</span><span class="detail-value">${data.especie}</span></div>
+                    <div class="detail-row"><span class="detail-label">Raça:</span><span class="detail-value">${data.raca || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Cor:</span><span class="detail-value">${data.cor || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Peso:</span><span class="detail-value">${data.peso ? data.peso + ' kg' : '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Nascimento:</span><span class="detail-value">${data.dataNascimento ? new Date(data.dataNascimento).toLocaleDateString() : '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Tutor:</span><span class="detail-value">${data.tutor?.nome || '-'}</span></div>
+                </div>
+            `;
+            break;
+        case 'veterinario':
+            html = `
+                <div class="detail-card">
+                    <h4><i class='bx bxs-stethoscope'></i> Informações do Veterinário</h4>
+                    <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${data.id}</span></div>
+                    <div class="detail-row"><span class="detail-label">Nome:</span><span class="detail-value">${data.nome}</span></div>
+                    <div class="detail-row"><span class="detail-label">CRMV:</span><span class="detail-value">${data.crmv}</span></div>
+                    <div class="detail-row"><span class="detail-label">Especialidade:</span><span class="detail-value">${data.especialidade || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Telefone:</span><span class="detail-value">${data.telefone || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Email:</span><span class="detail-value">${data.email || '-'}</span></div>
+                </div>
+            `;
+            break;
+        case 'consulta':
+            html = `
+                <div class="detail-card">
+                    <h4><i class='bx bxs-calendar-check'></i> Informações da Consulta</h4>
+                    <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${data.id}</span></div>
+                    <div class="detail-row"><span class="detail-label">Data/Hora:</span><span class="detail-value">${new Date(data.dataHora).toLocaleString()}</span></div>
+                    <div class="detail-row"><span class="detail-label">Status:</span><span class="detail-value">${data.status}</span></div>
+                    <div class="detail-row"><span class="detail-label">Pet:</span><span class="detail-value">${data.pet?.nome || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Veterinário:</span><span class="detail-value">${data.veterinario?.nome || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Observações:</span><span class="detail-value">${data.observacoes || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Diagnóstico:</span><span class="detail-value">${data.diagnostico || '-'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Prescrição:</span><span class="detail-value">${data.prescricao || '-'}</span></div>
+                </div>
+            `;
+            break;
+        case 'agenda':
+            html = `
+                <div class="detail-card">
+                    <h4><i class='bx bxs-calendar-week'></i> Informações da Agenda</h4>
+                    <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${data.id}</span></div>
+                    <div class="detail-row"><span class="detail-label">Início:</span><span class="detail-value">${new Date(data.dataHoraInicio).toLocaleString()}</span></div>
+                    <div class="detail-row"><span class="detail-label">Fim:</span><span class="detail-value">${new Date(data.dataHoraFim).toLocaleString()}</span></div>
+                    <div class="detail-row"><span class="detail-label">Disponível:</span><span class="detail-value">${data.disponivel ? 'Sim' : 'Não'}</span></div>
+                    <div class="detail-row"><span class="detail-label">Veterinário:</span><span class="detail-value">${data.veterinario?.nome || '-'}</span></div>
+                </div>
+            `;
+            break;
+        default:
+            html = '<div class="empty"><i class="bx bx-error-circle"></i>Visualização não disponível</div>';
+    }
+    
+    document.getElementById('detail-modal-body').innerHTML = html;
+}
+
+function closeDetailModal() {
+    document.getElementById('detail-modal').classList.remove('active');
+}
+

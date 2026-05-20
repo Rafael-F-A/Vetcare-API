@@ -634,3 +634,46 @@ tr:hover {
 ::-webkit-scrollbar-thumb:hover {
     background: #00173d;
 }
+
+/* Modal de Detalhes */
+.detail-modal-content {
+    max-width: 500px;
+}
+
+.detail-modal-body {
+    padding: 24px;
+}
+
+.detail-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-left: 4px solid #00173d;
+}
+
+.detail-card h4 {
+    color: #00173d;
+    margin-bottom: 12px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-row {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.detail-label {
+    font-weight: 600;
+    width: 120px;
+    color: #475569;
+}
+
+.detail-value {
+    flex: 1;
+    color: #1e293b;
+}
