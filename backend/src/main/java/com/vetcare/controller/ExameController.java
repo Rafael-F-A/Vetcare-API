@@ -1,7 +1,7 @@
 package com.vetcare.controller;
 
-import com.vetcare.model.entity.Pet;
-import com.vetcare.service.PetService;
+import com.vetcare.model.entity.Exame;
+import com.vetcare.service.ExameService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,40 +9,40 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/pets")
+@RequestMapping("/api/exames")
 @CrossOrigin(origins = "*")
-public class PetController {
+public class ExameController {
 
     @Autowired
-    private PetService petService;
+    private ExameService exameService;
 
     @GetMapping
-    public List<Pet> getAll() {
-        return petService.findAll();
+    public List<Exame> getAll() {
+        return exameService.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pet> getById(@PathVariable Long id) {
-        return petService.findById(id)
+    public ResponseEntity<Exame> getById(@PathVariable Long id) {
+        return exameService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/tutor/{tutorId}")
-    public List<Pet> getByTutorId(@PathVariable Long tutorId) {
-        return petService.findByTutorId(tutorId);
+    @GetMapping("/consulta/{consultaId}")
+    public List<Exame> getByConsultaId(@PathVariable Long consultaId) {
+        return exameService.findByConsultaId(consultaId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Pet create(@RequestBody Pet pet) {
-        return petService.create(pet);
+    public Exame create(@RequestBody Exame exame) {
+        return exameService.create(exame);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pet> update(@PathVariable Long id, @RequestBody Pet pet) {
+    public ResponseEntity<Exame> update(@PathVariable Long id, @RequestBody Exame exame) {
         try {
-            return ResponseEntity.ok(petService.update(id, pet));
+            return ResponseEntity.ok(exameService.update(id, exame));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
@@ -50,7 +50,7 @@ public class PetController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        petService.delete(id);
+        exameService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
