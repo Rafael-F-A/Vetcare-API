@@ -75,6 +75,15 @@ async function loadDashboard() {
         document.getElementById('total-veterinarios').textContent = veterinarios.length;
         document.getElementById('total-consultas').textContent = consultas.length;
         
+        // Adicionar evento de clique nos cards
+        const statCards = document.querySelectorAll('.stat-card');
+        if (statCards.length >= 4) {
+            statCards[0].onclick = () => { if(tutores.length > 0) showDetailModal('tutor', tutores[0].id); else alert('Nenhum tutor cadastrado'); };
+            statCards[1].onclick = () => { if(pets.length > 0) showDetailModal('pet', pets[0].id); else alert('Nenhum pet cadastrado'); };
+            statCards[2].onclick = () => { if(veterinarios.length > 0) showDetailModal('veterinario', veterinarios[0].id); else alert('Nenhum veterinário cadastrado'); };
+            statCards[3].onclick = () => { if(consultas.length > 0) showDetailModal('consulta', consultas[0].id); else alert('Nenhuma consulta cadastrada'); };
+        }
+        
         const recent = consultas.slice(-5).reverse();
         const recentHtml = `
             <table>
@@ -117,10 +126,35 @@ async function loadList(entity) {
         }
         
         container.innerHTML = renderTable(entity, data);
+        attachTableRowEvents(entity);
     } catch (error) {
         console.error('Error:', error);
         container.innerHTML = '<div class="empty"><i class="bx bx-error-circle"></i>Erro ao carregar dados</div>';
     }
+}
+
+function attachTableRowEvents(entity) {
+    const rows = document.querySelectorAll(`#${entity}-list tbody tr`);
+    const singularMap = {
+        'tutores': 'tutor',
+        'pets': 'pet',
+        'veterinarios': 'veterinario',
+        'consultas': 'consulta',
+        'agendas': 'agenda'
+    };
+    const singular = singularMap[entity];
+    
+    rows.forEach(row => {
+        const firstCell = row.cells[0];
+        if (firstCell) {
+            const id = parseInt(firstCell.textContent);
+            row.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'BUTTON') {
+                    showDetailModal(singular, id);
+                }
+            });
+        }
+    });
 }
 
 function renderTable(entity, data) {
@@ -158,27 +192,47 @@ function renderRow(entity, item) {
     switch(entity) {
         case 'tutores':
             return `<tr>
-                <td>${item.id}</td><td>${item.nome}</td><td>${item.cpf}</td><td>${item.telefone || '-'}</td><td>${item.email || '-'}</td>
+                <td>${item.id}</td>
+                <td>${item.nome}</td>
+                <td>${item.cpf}</td>
+                <td>${item.telefone || '-'}</td>
+                <td>${item.email || '-'}</td>
                 <td><button class="btn-edit" onclick="editItem('tutores', ${item.id})"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('tutores', ${item.id})"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         case 'pets':
             return `<tr>
-                <td>${item.id}</td><td>${item.nome}</td><td>${item.especie}</td><td>${item.raca || '-'}</td><td>${item.tutor?.nome || '-'}</td>
+                <td>${item.id}</td>
+                <td>${item.nome}</td>
+                <td>${item.especie}</td>
+                <td>${item.raca || '-'}</td>
+                <td>${item.tutor?.nome || '-'}</td>
                 <td><button class="btn-edit" onclick="editItem('pets', ${item.id})"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('pets', ${item.id})"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         case 'veterinarios':
             return `<tr>
-                <td>${item.id}</td><td>${item.nome}</td><td>${item.crmv}</td><td>${item.especialidade || '-'}</td><td>${item.telefone || '-'}</td>
+                <td>${item.id}</td>
+                <td>${item.nome}</td>
+                <td>${item.crmv}</td>
+                <td>${item.especialidade || '-'}</td>
+                <td>${item.telefone || '-'}</td>
                 <td><button class="btn-edit" onclick="editItem('veterinarios', ${item.id})"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('veterinarios', ${item.id})"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         case 'consultas':
             return `<tr>
-                <td>${item.id}</td><td>${new Date(item.dataHora).toLocaleString()}</td><td>${item.pet?.nome || '-'}</td><td>${item.veterinario?.nome || '-'}</td><td>${item.status}</td>
+                <td>${item.id}</td>
+                <td>${new Date(item.dataHora).toLocaleString()}</td>
+                <td>${item.pet?.nome || '-'}</td>
+                <td>${item.veterinario?.nome || '-'}</td>
+                <td>${item.status}</td>
                 <td><button class="btn-edit" onclick="editItem('consultas', ${item.id})"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('consultas', ${item.id})"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         case 'agendas':
             return `<tr>
-                <td>${item.id}</td><td>${new Date(item.dataHoraInicio).toLocaleString()}</td><td>${new Date(item.dataHoraFim).toLocaleString()}</td><td>${item.veterinario?.nome || '-'}</td><td>${item.disponivel ? 'Sim' : 'Não'}</td>
+                <td>${item.id}</td>
+                <td>${new Date(item.dataHoraInicio).toLocaleString()}</td>
+                <td>${new Date(item.dataHoraFim).toLocaleString()}</td>
+                <td>${item.veterinario?.nome || '-'}</td>
+                <td>${item.disponivel ? 'Sim' : 'Não'}</td>
                 <td><button class="btn-edit" onclick="editItem('agendas', ${item.id})"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('agendas', ${item.id})"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         default:
@@ -186,7 +240,7 @@ function renderRow(entity, item) {
     }
 }
 
-// Show Modal
+// Show Modal (Create/Edit)
 async function showModal(entity, id = null) {
     currentEntity = entity;
     editingId = id;
@@ -208,7 +262,9 @@ async function loadFormFields(entity, id) {
     let data = {};
     if (id) {
         try {
-            const response = await fetch(`${API_BASE}/${entity}s/${id}`);
+            const pluralMap = { 'tutor': 'tutores', 'pet': 'pets', 'veterinario': 'veterinarios', 'consulta': 'consultas', 'agenda': 'agendas' };
+            const pluralEntity = pluralMap[entity];
+            const response = await fetch(`${API_BASE}/${pluralEntity}/${id}`);
             if (response.ok) data = await response.json();
         } catch (error) {
             console.error(`Erro ao carregar ${entity} para edição:`, error);
@@ -224,17 +280,12 @@ async function loadFormFields(entity, id) {
                 <div class="form-group"><label><i class='bx bx-envelope'></i>Email</label><input type="email" id="email" value="${data.email || ''}"></div>
                 <div class="form-group"><label><i class='bx bx-map'></i>Endereço</label><input type="text" id="endereco" value="${data.endereco || ''}"></div>
             `;
-            
         case 'pet':
             let tutores = [];
             try {
                 const response = await fetch(`${API_BASE}/tutores`);
                 if (response.ok) tutores = await response.json();
-                else console.error('Erro ao carregar tutores:', response.status);
-            } catch (error) {
-                console.error('Erro de conexão ao carregar tutores:', error);
-            }
-            
+            } catch (error) { console.error('Erro ao carregar tutores:', error); }
             return `
                 <div class="form-group"><label><i class='bx bx-paw'></i>Nome*</label><input type="text" id="nome" value="${data.nome || ''}" required></div>
                 <div class="form-group"><label><i class='bx bx-category'></i>Espécie*</label>
@@ -251,7 +302,6 @@ async function loadFormFields(entity, id) {
                     </select>
                 </div>
             `;
-            
         case 'veterinario':
             return `
                 <div class="form-group"><label><i class='bx bx-user'></i>Nome*</label><input type="text" id="nome" value="${data.nome || ''}" required></div>
@@ -260,21 +310,13 @@ async function loadFormFields(entity, id) {
                 <div class="form-group"><label><i class='bx bx-phone'></i>Telefone</label><input type="text" id="telefone" value="${data.telefone || ''}"></div>
                 <div class="form-group"><label><i class='bx bx-envelope'></i>Email</label><input type="email" id="email" value="${data.email || ''}"></div>
             `;
-            
         case 'consulta':
             let pets = [], veterinarios = [];
             try {
-                const [petsRes, vetsRes] = await Promise.all([
-                    fetch(`${API_BASE}/pets`),
-                    fetch(`${API_BASE}/veterinarios`)
-                ]);
+                const [petsRes, vetsRes] = await Promise.all([fetch(`${API_BASE}/pets`), fetch(`${API_BASE}/veterinarios`)]);
                 if (petsRes.ok) pets = await petsRes.json();
                 if (vetsRes.ok) veterinarios = await vetsRes.json();
-                console.log('Pets carregados:', pets.length, 'Veterinários carregados:', veterinarios.length);
-            } catch (error) {
-                console.error('Erro ao carregar dados para consulta:', error);
-            }
-            
+            } catch (error) { console.error('Erro ao carregar dados para consulta:', error); }
             return `
                 <div class="form-group"><label><i class='bx bx-calendar'></i>Data/Hora*</label><input type="datetime-local" id="dataHora" value="${data.dataHora?.slice(0,16) || ''}" required></div>
                 <div class="form-group"><label><i class='bx bxs-dog'></i>Pet*</label>
@@ -296,17 +338,12 @@ async function loadFormFields(entity, id) {
                 <div class="form-group"><label><i class='bx bx-stethoscope'></i>Diagnóstico</label><textarea id="diagnostico" rows="2">${data.diagnostico || ''}</textarea></div>
                 <div class="form-group"><label><i class='bx bx-capsule'></i>Prescrição</label><textarea id="prescricao" rows="2">${data.prescricao || ''}</textarea></div>
             `;
-            
         case 'agenda':
             let veterinariosAgenda = [];
             try {
                 const response = await fetch(`${API_BASE}/veterinarios`);
                 if (response.ok) veterinariosAgenda = await response.json();
-                console.log('Veterinários carregados para agenda:', veterinariosAgenda.length);
-            } catch (error) {
-                console.error('Erro ao carregar veterinários para agenda:', error);
-            }
-            
+            } catch (error) { console.error('Erro ao carregar veterinários para agenda:', error); }
             return `
                 <div class="form-group"><label><i class='bx bx-calendar'></i>Início*</label><input type="datetime-local" id="dataHoraInicio" value="${data.dataHoraInicio?.slice(0,16) || ''}" required></div>
                 <div class="form-group"><label><i class='bx bx-calendar'></i>Fim*</label><input type="datetime-local" id="dataHoraFim" value="${data.dataHoraFim?.slice(0,16) || ''}" required></div>
@@ -323,7 +360,6 @@ async function loadFormFields(entity, id) {
                     </select>
                 </div>
             `;
-            
         default:
             return '<p class="empty">Formulário não disponível para esta entidade</p>';
     }
@@ -335,101 +371,54 @@ document.getElementById('modal-form').addEventListener('submit', async (e) => {
     
     const entity = currentEntity;
     const isEdit = editingId !== null;
-    const url = isEdit ? `${API_BASE}/${entity}s/${editingId}` : `${API_BASE}/${entity}s`;
+    
+    const pluralMap = { 'tutor': 'tutores', 'pet': 'pets', 'veterinario': 'veterinarios', 'consulta': 'consultas', 'agenda': 'agendas' };
+    const urlEntity = pluralMap[entity];
+    const url = isEdit ? `${API_BASE}/${urlEntity}/${editingId}` : `${API_BASE}/${urlEntity}`;
     const method = isEdit ? 'PUT' : 'POST';
     
     let body = {};
     
     switch(entity) {
         case 'tutor':
-            body = {
-                nome: document.getElementById('nome').value,
-                cpf: document.getElementById('cpf').value,
-                telefone: document.getElementById('telefone').value,
-                email: document.getElementById('email').value,
-                endereco: document.getElementById('endereco').value
-            };
+            body = { nome: document.getElementById('nome').value, cpf: document.getElementById('cpf').value, telefone: document.getElementById('telefone').value, email: document.getElementById('email').value, endereco: document.getElementById('endereco').value };
             break;
         case 'pet':
-            body = {
-                nome: document.getElementById('nome').value,
-                especie: document.getElementById('especie').value,
-                raca: document.getElementById('raca').value,
-                dataNascimento: document.getElementById('dataNascimento').value,
-                cor: document.getElementById('cor').value,
-                peso: parseFloat(document.getElementById('peso').value) || null,
-                tutor: { id: parseInt(document.getElementById('tutorId').value) }
-            };
+            body = { nome: document.getElementById('nome').value, especie: document.getElementById('especie').value, raca: document.getElementById('raca').value, dataNascimento: document.getElementById('dataNascimento').value, cor: document.getElementById('cor').value, peso: parseFloat(document.getElementById('peso').value) || null, tutor: { id: parseInt(document.getElementById('tutorId').value) } };
             break;
         case 'veterinario':
-            body = {
-                nome: document.getElementById('nome').value,
-                crmv: document.getElementById('crmv').value,
-                especialidade: document.getElementById('especialidade').value,
-                telefone: document.getElementById('telefone').value,
-                email: document.getElementById('email').value
-            };
+            body = { nome: document.getElementById('nome').value, crmv: document.getElementById('crmv').value, especialidade: document.getElementById('especialidade').value, telefone: document.getElementById('telefone').value, email: document.getElementById('email').value };
             break;
         case 'consulta':
-            body = {
-                dataHora: document.getElementById('dataHora').value,
-                pet: { id: parseInt(document.getElementById('petId').value) },
-                veterinario: { id: parseInt(document.getElementById('veterinarioId').value) },
-                status: document.getElementById('status').value,
-                observacoes: document.getElementById('observacoes').value,
-                diagnostico: document.getElementById('diagnostico').value,
-                prescricao: document.getElementById('prescricao').value
-            };
+            body = { dataHora: document.getElementById('dataHora').value, pet: { id: parseInt(document.getElementById('petId').value) }, veterinario: { id: parseInt(document.getElementById('veterinarioId').value) }, status: document.getElementById('status').value, observacoes: document.getElementById('observacoes').value, diagnostico: document.getElementById('diagnostico').value, prescricao: document.getElementById('prescricao').value };
             break;
         case 'agenda':
-            body = {
-                dataHoraInicio: document.getElementById('dataHoraInicio').value,
-                dataHoraFim: document.getElementById('dataHoraFim').value,
-                veterinario: { id: parseInt(document.getElementById('veterinarioId').value) },
-                disponivel: document.getElementById('disponivel').value === 'true'
-            };
+            body = { dataHoraInicio: document.getElementById('dataHoraInicio').value, dataHoraFim: document.getElementById('dataHoraFim').value, veterinario: { id: parseInt(document.getElementById('veterinarioId').value) }, disponivel: document.getElementById('disponivel').value === 'true' };
             break;
     }
     
     try {
-        const response = await fetch(url, {
-            method: method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-        
+        const response = await fetch(url, { method: method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         if (response.ok) {
             closeModal();
             loadList(currentModule);
             if (currentModule === 'dashboard') loadDashboard();
-        } else {
-            const error = await response.text();
-            alert('Erro ao salvar: ' + error);
-        }
-    } catch (error) {
-        console.error('Error saving:', error);
-        alert('Erro de conexão com o servidor. Verifique se a API está rodando.');
-    }
+        } else { alert('Erro ao salvar: ' + await response.text()); }
+    } catch (error) { alert('Erro de conexão com o servidor.'); }
 });
 
 function editItem(entity, id) {
-    showModal(entity.slice(0, -1), id);
+    const singularMap = { 'tutores': 'tutor', 'pets': 'pet', 'veterinarios': 'veterinario', 'consultas': 'consulta', 'agendas': 'agenda' };
+    showModal(singularMap[entity], id);
 }
 
 async function deleteItem(entity, id) {
     if (confirm('Tem certeza que deseja excluir este registro?')) {
         try {
             const response = await fetch(`${API_BASE}/${entity}/${id}`, { method: 'DELETE' });
-            if (response.ok) {
-                loadList(currentModule);
-                if (currentModule === 'dashboard') loadDashboard();
-            } else {
-                alert('Erro ao excluir');
-            }
-        } catch (error) {
-            console.error('Error deleting:', error);
-            alert('Erro de conexão com o servidor');
-        }
+            if (response.ok) { loadList(currentModule); if (currentModule === 'dashboard') loadDashboard(); }
+            else { alert('Erro ao excluir'); }
+        } catch (error) { alert('Erro de conexão com o servidor'); }
     }
 }
 
@@ -438,4 +427,87 @@ function closeModal() {
     document.getElementById('modal-form').reset();
     editingId = null;
     currentEntity = null;
+}
+
+// Detail Modal
+async function showDetailModal(entityType, entityId) {
+    const pluralMap = { 'tutor': 'tutores', 'pet': 'pets', 'veterinario': 'veterinarios', 'consulta': 'consultas', 'agenda': 'agendas' };
+    const pluralEntity = pluralMap[entityType];
+    const titleMap = { 'tutor': 'Detalhes do Tutor', 'pet': 'Detalhes do Pet', 'veterinario': 'Detalhes do Veterinário', 'consulta': 'Detalhes da Consulta', 'agenda': 'Detalhes da Agenda' };
+    
+    document.getElementById('detail-modal-title').textContent = titleMap[entityType];
+    document.getElementById('detail-modal-body').innerHTML = '<div class="loading"><i class="bx bx-loader-alt bx-spin"></i> Carregando...</div>';
+    document.getElementById('detail-modal').classList.add('active');
+    
+    try {
+        const response = await fetch(`${API_BASE}/${pluralEntity}/${entityId}`);
+        if (response.ok) { renderDetailModal(entityType, await response.json()); }
+        else { document.getElementById('detail-modal-body').innerHTML = '<div class="empty"><i class="bx bx-error-circle"></i>Erro ao carregar dados</div>'; }
+    } catch (error) { document.getElementById('detail-modal-body').innerHTML = '<div class="empty"><i class="bx bx-error-circle"></i>Erro de conexão</div>'; }
+}
+
+function renderDetailModal(entityType, data) {
+    let html = '';
+    switch(entityType) {
+        case 'tutor':
+            html = `<div class="detail-card"><h4><i class='bx bx-user'></i> Informações Pessoais</h4>
+                <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${data.id}</span></div>
+                <div class="detail-row"><span class="detail-label">Nome:</span><span class="detail-value">${data.nome}</span></div>
+                <div class="detail-row"><span class="detail-label">CPF:</span><span class="detail-value">${data.cpf}</span></div>
+                <div class="detail-row"><span class="detail-label">Telefone:</span><span class="detail-value">${data.telefone || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Email:</span><span class="detail-value">${data.email || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Endereço:</span><span class="detail-value">${data.endereco || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Cadastro:</span><span class="detail-value">${new Date(data.dataCadastro).toLocaleDateString()}</span></div>
+            </div>`;
+            break;
+        case 'pet':
+            html = `<div class="detail-card"><h4><i class='bx bxs-dog'></i> Informações do Pet</h4>
+                <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${data.id}</span></div>
+                <div class="detail-row"><span class="detail-label">Nome:</span><span class="detail-value">${data.nome}</span></div>
+                <div class="detail-row"><span class="detail-label">Espécie:</span><span class="detail-value">${data.especie}</span></div>
+                <div class="detail-row"><span class="detail-label">Raça:</span><span class="detail-value">${data.raca || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Cor:</span><span class="detail-value">${data.cor || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Peso:</span><span class="detail-value">${data.peso ? data.peso + ' kg' : '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Nascimento:</span><span class="detail-value">${data.dataNascimento ? new Date(data.dataNascimento).toLocaleDateString() : '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Tutor:</span><span class="detail-value">${data.tutor?.nome || '-'}</span></div>
+            </div>`;
+            break;
+        case 'veterinario':
+            html = `<div class="detail-card"><h4><i class='bx bxs-stethoscope'></i> Informações do Veterinário</h4>
+                <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${data.id}</span></div>
+                <div class="detail-row"><span class="detail-label">Nome:</span><span class="detail-value">${data.nome}</span></div>
+                <div class="detail-row"><span class="detail-label">CRMV:</span><span class="detail-value">${data.crmv}</span></div>
+                <div class="detail-row"><span class="detail-label">Especialidade:</span><span class="detail-value">${data.especialidade || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Telefone:</span><span class="detail-value">${data.telefone || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Email:</span><span class="detail-value">${data.email || '-'}</span></div>
+            </div>`;
+            break;
+        case 'consulta':
+            html = `<div class="detail-card"><h4><i class='bx bxs-calendar-check'></i> Informações da Consulta</h4>
+                <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${data.id}</span></div>
+                <div class="detail-row"><span class="detail-label">Data/Hora:</span><span class="detail-value">${new Date(data.dataHora).toLocaleString()}</span></div>
+                <div class="detail-row"><span class="detail-label">Status:</span><span class="detail-value">${data.status}</span></div>
+                <div class="detail-row"><span class="detail-label">Pet:</span><span class="detail-value">${data.pet?.nome || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Veterinário:</span><span class="detail-value">${data.veterinario?.nome || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Observações:</span><span class="detail-value">${data.observacoes || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Diagnóstico:</span><span class="detail-value">${data.diagnostico || '-'}</span></div>
+                <div class="detail-row"><span class="detail-label">Prescrição:</span><span class="detail-value">${data.prescricao || '-'}</span></div>
+            </div>`;
+            break;
+        case 'agenda':
+            html = `<div class="detail-card"><h4><i class='bx bxs-calendar-week'></i> Informações da Agenda</h4>
+                <div class="detail-row"><span class="detail-label">ID:</span><span class="detail-value">${data.id}</span></div>
+                <div class="detail-row"><span class="detail-label">Início:</span><span class="detail-value">${new Date(data.dataHoraInicio).toLocaleString()}</span></div>
+                <div class="detail-row"><span class="detail-label">Fim:</span><span class="detail-value">${new Date(data.dataHoraFim).toLocaleString()}</span></div>
+                <div class="detail-row"><span class="detail-label">Disponível:</span><span class="detail-value">${data.disponivel ? 'Sim' : 'Não'}</span></div>
+                <div class="detail-row"><span class="detail-label">Veterinário:</span><span class="detail-value">${data.veterinario?.nome || '-'}</span></div>
+            </div>`;
+            break;
+        default: html = '<div class="empty">Visualização não disponível</div>';
+    }
+    document.getElementById('detail-modal-body').innerHTML = html;
+}
+
+function closeDetailModal() {
+    document.getElementById('detail-modal').classList.remove('active');
 }
