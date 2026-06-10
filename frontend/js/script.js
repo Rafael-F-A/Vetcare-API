@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE = 'http://localhost:8080/api';
+const API_BASE = 'http://localhost:8081/api';
 
 // State
 let currentModule = 'dashboard';
@@ -57,6 +57,30 @@ function switchModule(module) {
         loadList(module);
     } else {
         loadDashboard();
+    }
+}
+
+// Load Lists
+async function loadList(entity) {
+    const container = document.getElementById(`${entity}-list`);
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading"><i class="bx bx-loader-alt bx-spin"></i> Carregando...</div>';
+    
+    try {
+        const response = await fetch(`${API_BASE}/${entity}`);
+        const data = await response.json();
+        
+        if (data.length === 0) {
+            container.innerHTML = `<div class="empty"><i class='bx bx-folder-open'></i>Nenhum registro encontrado</div>`;
+            return;
+        }
+        
+        container.innerHTML = renderTable(entity, data);
+        attachTableRowEvents(entity);
+    } catch (error) {
+        console.error('Error:', error);
+        container.innerHTML = '<div class="empty"><i class="bx bx-error-circle"></i>Erro ao carregar dados</div>';
     }
 }
 
@@ -123,15 +147,15 @@ async function showPetsByTutor(tutorId, tutorNome) {
             petsHtml = `
                 <div style="display: flex; flex-wrap: wrap; gap: 16px;">
                     ${pets.map(pet => `
-                        <div class="pet-card" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; width: 180px; text-align: center; cursor: pointer; transition: all 0.2s;" onclick="showDetailModal('pet', ${pet.id})">
+                        <div class="pet-card" style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; width: 180px; text-align: center; cursor: pointer; transition: all 0.2s;">
                             <div style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; margin: 0 auto 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center;">
                                 ${pet.fotoUrl ? `<img src="${pet.fotoUrl}" style="width:100%; height:100%; object-fit: cover;">` : '<i class="bx bxs-camera" style="font-size: 40px; color: #94a3b8;"></i>'}
                             </div>
                             <h4 style="margin: 8px 0 4px;">${pet.nome}</h4>
                             <p style="font-size: 12px; color: #64748b;">${pet.especie} | ${pet.raca || '-'}</p>
                             <div style="margin-top: 8px;">
-                                <button class="btn-edit" style="padding: 4px 8px; font-size: 11px;" onclick="event.stopPropagation(); editItem('pets', ${pet.id})"><i class='bx bx-edit'></i></button>
-                                <button class="btn-delete" style="padding: 4px 8px; font-size: 11px;" onclick="event.stopPropagation(); deleteItem('pets', ${pet.id})"><i class='bx bx-trash'></i></button>
+                                <button class="btn-edit" style="padding: 4px 8px; font-size: 11px;" onclick="event.stopPropagation(); editItem('pets', ${pet.id}); closePetsModal();"><i class='bx bx-edit'></i></button>
+                                <button class="btn-delete" style="padding: 4px 8px; font-size: 11px;" onclick="event.stopPropagation(); deleteItem('pets', ${pet.id}); closePetsModal();"><i class='bx bx-trash'></i></button>
                             </div>
                         </div>
                     `).join('')}
@@ -139,37 +163,37 @@ async function showPetsByTutor(tutorId, tutorNome) {
             `;
         }
         
-        // Criar modal temporário para mostrar os pets
-        let tempModal = document.getElementById('temp-pets-modal');
-        if (!tempModal) {
-            tempModal = document.createElement('div');
-            tempModal.id = 'temp-pets-modal';
-            tempModal.className = 'modal';
-            tempModal.style.display = 'flex';
-            tempModal.style.alignItems = 'center';
-            tempModal.style.justifyContent = 'center';
-            document.body.appendChild(tempModal);
+        // Remover modal existente se houver
+        const existingModal = document.getElementById('temp-pets-modal');
+        if (existingModal) {
+            existingModal.remove();
         }
-        tempModal.innerHTML = `
+        
+        // Criar o modal
+        const modalDiv = document.createElement('div');
+        modalDiv.id = 'temp-pets-modal';
+        modalDiv.className = 'modal';
+        modalDiv.style.display = 'flex';
+        modalDiv.style.alignItems = 'center';
+        modalDiv.style.justifyContent = 'center';
+        
+        modalDiv.innerHTML = `
             <div class="modal-content" style="max-width: 700px;">
                 <div class="modal-header">
                     <div class="modal-title">
                         <i class='bx bxs-group'></i>
                         <h3>Pets de ${tutorNome}</h3>
                     </div>
-                    <i class='bx bx-x close' onclick="closeCustomModal()"></i>
+                    <i class='bx bx-x close' onclick="closePetsModal()"></i>
                 </div>
                 <div style="padding: 24px;">
                     ${petsHtml}
                 </div>
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary" onclick="closeCustomModal()">
-                        <i class='bx bx-x'></i> Fechar
-                    </button>
-                </div>
             </div>
         `;
-        tempModal.classList.add('active');
+        
+        document.body.appendChild(modalDiv);
+        modalDiv.classList.add('active');
         
     } catch (error) {
         console.error('Erro ao carregar pets do tutor:', error);
@@ -177,33 +201,15 @@ async function showPetsByTutor(tutorId, tutorNome) {
     }
 }
 
-function closeCustomModal() {
+function closePetsModal() {
     const modal = document.getElementById('temp-pets-modal');
     if (modal) {
         modal.classList.remove('active');
-        modal.innerHTML = '';
-    }
-}
-
-// Load Lists
-async function loadList(entity) {
-    const container = document.getElementById(`${entity}-list`);
-    container.innerHTML = '<div class="loading"><i class="bx bx-loader-alt bx-spin"></i> Carregando...</div>';
-    
-    try {
-        const response = await fetch(`${API_BASE}/${entity}`);
-        const data = await response.json();
-        
-        if (data.length === 0) {
-            container.innerHTML = `<div class="empty"><i class='bx bx-folder-open'></i>Nenhum registro encontrado</div>`;
-            return;
-        }
-        
-        container.innerHTML = renderTable(entity, data);
-        attachTableRowEvents(entity);
-    } catch (error) {
-        console.error('Error:', error);
-        container.innerHTML = '<div class="empty"><i class="bx bx-error-circle"></i>Erro ao carregar dados</div>';
+        setTimeout(() => {
+            if (modal.parentNode) {
+                modal.remove();
+            }
+        }, 300);
     }
 }
 
@@ -283,7 +289,7 @@ function renderRow(entity, item) {
                 <td><button class="btn-edit" onclick="editItem('tutores', ${item.id}); event.stopPropagation();"><i class='bx bx-edit'></i>Editar</button><button class="btn-delete" onclick="deleteItem('tutores', ${item.id}); event.stopPropagation();"><i class='bx bx-trash'></i>Excluir</button></td>
             </tr>`;
         case 'pets':
-            return `<td>
+            return `<tr>
                 <td>${item.id}</td>
                 <td style="width: 50px; text-align: center;">
                     ${item.fotoUrl ? `<img src="${item.fotoUrl}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">` : '<i class="bx bx-camera" style="font-size: 24px; color: #94a3b8;"></i>'}
