@@ -99,13 +99,13 @@ async function loadDashboard() {
         document.getElementById('total-veterinarios').textContent = veterinarios.length;
         document.getElementById('total-consultas').textContent = consultas.length;
         
-        // Adicionar evento de clique nos cards
+        // Adicionar evento de clique nos cards (redireciona para o módulo correspondente)
         const statCards = document.querySelectorAll('.stat-card');
         if (statCards.length >= 4) {
-            statCards[0].onclick = () => { if(tutores.length > 0) showDetailModal('tutor', tutores[0].id); else alert('Nenhum tutor cadastrado'); };
-            statCards[1].onclick = () => { if(pets.length > 0) showDetailModal('pet', pets[0].id); else alert('Nenhum pet cadastrado'); };
-            statCards[2].onclick = () => { if(veterinarios.length > 0) showDetailModal('veterinario', veterinarios[0].id); else alert('Nenhum veterinário cadastrado'); };
-            statCards[3].onclick = () => { if(consultas.length > 0) showDetailModal('consulta', consultas[0].id); else alert('Nenhuma consulta cadastrada'); };
+            statCards[0].onclick = () => { switchModule('tutores'); };
+            statCards[1].onclick = () => { switchModule('pets'); };
+            statCards[2].onclick = () => { switchModule('veterinarios'); };
+            statCards[3].onclick = () => { switchModule('consultas'); };
         }
         
         const recent = consultas.slice(-5).reverse();
@@ -134,6 +134,7 @@ async function loadDashboard() {
         document.getElementById('recent-consultas').innerHTML = '<div class="empty"><i class="bx bx-error-circle"></i>Erro ao carregar</div>';
     }
 }
+
 
 // Função para mostrar pets de um tutor específico
 async function showPetsByTutor(tutorId, tutorNome) {
