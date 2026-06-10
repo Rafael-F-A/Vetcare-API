@@ -25,6 +25,9 @@ public class Consulta {
     private String diagnostico;
     
     @Column(length = 500)
+    private String diagnosticoUrl;
+
+    @Column(length = 500)
     private String prescricao;
     
     @ManyToOne
