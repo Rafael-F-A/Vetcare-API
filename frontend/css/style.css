@@ -1,4 +1,4 @@
-﻿* {
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -16,9 +16,7 @@ body {
     min-height: 100vh;
 }
 
-/* ============================================
-   SIDEBAR - AZUL MARINHO
-   ============================================ */
+/* SIDEBAR - AZUL MARINHO */
 .sidebar {
     width: 280px;
     background: linear-gradient(180deg, #00173d 0%, #002a5e 100%);
@@ -48,7 +46,7 @@ body {
 .logo-text {
     font-size: 24px;
     font-weight: 800;
-    background-color: white;
+    background: white;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -123,9 +121,7 @@ body {
     50% { opacity: 0.5; }
 }
 
-/* ============================================
-   MAIN CONTENT
-   ============================================ */
+/* MAIN CONTENT */
 .main-content {
     flex: 1;
     margin-left: 280px;
@@ -155,7 +151,7 @@ body {
 .page-title h1 {
     font-size: 28px;
     font-weight: 700;
-    background-color: #00173d;
+    background: #00173d;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -180,9 +176,7 @@ body {
     font-weight: 500;
 }
 
-/* ============================================
-   MODULES
-   ============================================ */
+/* MODULES */
 .module {
     display: none;
     animation: fadeIn 0.3s ease;
@@ -221,9 +215,7 @@ body {
     color: #1e293b;
 }
 
-/* ============================================
-   STATS GRID
-   ============================================ */
+/* STATS GRID */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -241,6 +233,7 @@ body {
     box-shadow: 0 4px 12px rgba(0, 23, 61, 0.08);
     transition: all 0.3s ease;
     border: 1px solid rgba(0, 23, 61, 0.05);
+    cursor: pointer;
 }
 
 .stat-card:hover {
@@ -251,7 +244,7 @@ body {
 
 .stat-icon i {
     font-size: 48px;
-    background-color: #00173d;
+    background: #00173d;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -268,9 +261,7 @@ body {
     font-weight: 500;
 }
 
-/* ============================================
-   TABLES
-   ============================================ */
+/* TABLES */
 .table-container {
     background: white;
     border-radius: 16px;
@@ -305,13 +296,15 @@ td {
     color: #334155;
 }
 
+tr {
+    cursor: pointer;
+}
+
 tr:hover {
     background: #f0f9ff;
 }
 
-/* ============================================
-   BUTTONS - AZUL
-   ============================================ */
+/* BUTTONS */
 .btn-primary {
     background: linear-gradient(135deg, #00173d, #1e3a8a);
     color: white;
@@ -402,9 +395,7 @@ tr:hover {
     background: #cbd5e1;
 }
 
-/* ============================================
-   MODAL
-   ============================================ */
+/* MODAL */
 .modal {
     display: none;
     position: fixed;
@@ -527,6 +518,49 @@ tr:hover {
     border-radius: 0 0 24px 24px;
 }
 
+/* Detail Modal */
+.detail-modal-content {
+    max-width: 500px;
+}
+
+.detail-modal-body {
+    padding: 24px;
+}
+
+.detail-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    border-left: 4px solid #00173d;
+}
+
+.detail-card h4 {
+    color: #00173d;
+    margin-bottom: 12px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-row {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.detail-label {
+    font-weight: 600;
+    width: 120px;
+    color: #475569;
+}
+
+.detail-value {
+    flex: 1;
+    color: #1e293b;
+}
+
 /* Recent Section */
 .recent-section {
     margin-top: 32px;
@@ -576,9 +610,7 @@ tr:hover {
     color: #cbd5e1;
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+/* RESPONSIVE */
 @media (max-width: 768px) {
     .sidebar {
         width: 80px;
@@ -613,9 +645,7 @@ tr:hover {
     }
 }
 
-/* ============================================
-   SCROLLBAR PERSONALIZADA (AZUL)
-   ============================================ */
+/* SCROLLBAR */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
