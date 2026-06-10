@@ -21,6 +21,9 @@ public class Pet {
     @Column(length = 50)
     private String raca;
     
+    @Column(length = 500)
+    private String fotoUrl;
+
     private LocalDate dataNascimento;
     
     @Column(length = 20)
@@ -112,5 +115,13 @@ public class Pet {
 
     public void setTutor(Tutor tutor) {
         this.tutor = tutor;
+    }
+
+    public String getFotoUrl() {
+        return fotoUrl;
+    }
+    
+    public void setFotoUrl(String fotoUrl) {
+        this.fotoUrl = fotoUrl;
     }
 }
